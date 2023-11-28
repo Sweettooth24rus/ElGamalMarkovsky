@@ -20,7 +20,6 @@ info-docs/
 /docker/
 /files/
 /logs/
-/src/main/resources/META-INF/resources/oferta/
 /tmp/
 /node/
 /build/
@@ -32,3 +31,4 @@ tsconfig.json
 types.d.ts
 vite.config.ts
 vite.generated.ts
+.mvn
