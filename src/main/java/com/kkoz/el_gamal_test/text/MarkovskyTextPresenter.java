@@ -7,21 +7,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MarkovskyTextPresenter {
-        private static final List<String> symbols = List.of(
+    private static final List<String> symbols = List.of(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
         "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
         "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-            "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О",
+        "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О",
         "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я",
-            "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о",
+        "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о",
         "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         " ", ",", ".", ":", ";", "+", "-", "*", "/", "%", "?", "!", "(", ")", "[", "]", "{", "}"
     );
-//    private static final List<String> symbols = List.of(
-//        "A", "B", "C", "D", "E"
-//    );
     @Getter
     private static final int quasigroupMatrixSize = symbols.size();
 
@@ -33,15 +30,23 @@ public class MarkovskyTextPresenter {
         this.view = view;
     }
 
+    //Генерация случайной матрицы квазигруппы
     public void randomUpdateQuasigroup() {
+        //Матрица квазигруппы
         quasigroupMatrix = new int[quasigroupMatrixSize][quasigroupMatrixSize];
 
+        //Массив возможных символов
         var possibleSymbols = new ArrayList<>(symbols);
+        //Перемешиваем значения
         Collections.shuffle(possibleSymbols);
 
+        //Массив отступов
         var offset = new int[quasigroupMatrixSize];
+        //Цикл по всем строкам
         for (int i = 1; i < quasigroupMatrixSize; i++) {
+            //Генерируем случайное число
             var randomNumber = (int) (Math.random() * quasigroupMatrixSize);
+            //Если не содержится в массиве отступов, то добавляем
             if (!contains(offset, randomNumber)) {
                 offset[i] = randomNumber;
             } else {
@@ -49,8 +54,11 @@ public class MarkovskyTextPresenter {
             }
         }
 
+        //Цикл по всем строкам
         for (int i = 0; i < quasigroupMatrixSize; i++) {
+            //Цикл по всем столбцам
             for (int j = 0; j < quasigroupMatrixSize; j++) {
+                //Заполняем строки квазигруппы, используя строку возможных символов и отступ
                 quasigroupMatrix[i][j] = symbols.indexOf(possibleSymbols.get((j + offset[i]) % quasigroupMatrixSize));
             }
         }
@@ -65,93 +73,146 @@ public class MarkovskyTextPresenter {
         return false;
     }
 
+    //Получение цикла преобразований
     private String getCycle(Map<Integer, Integer> transitions) {
+        //Строка цикла преобразований
         var result = new StringBuilder();
 
+        //Массив возможных переходов
         var possibleTransitions = new ArrayList<>(transitions.keySet());
 
+        //Цикл пока не закончатся элементы переходов
         while (!possibleTransitions.isEmpty()) {
+            //Первый элемент переходов
             var initialTransition = possibleTransitions.get(0);
+            //Удаляем первый элемент переходов
             possibleTransitions.remove(initialTransition);
+            //Следующий элемент
             var nextTransition = transitions.get(initialTransition);
+            //Массив цикла
             var cycle = new ArrayList<Integer>();
+            //Добавляем первый элемент цикла
             cycle.add(initialTransition);
+            //Цикл пока текущий элемент не равен следующему элементу
             while (!Objects.equals(initialTransition, nextTransition)) {
+                //Добавляем следующий элемент в цикл
                 cycle.add(nextTransition);
+                //Удаляем следующий элемент из переходов
                 possibleTransitions.remove(nextTransition);
+                //Меняем следующий элемент
                 nextTransition = transitions.get(nextTransition);
             }
+            //Если цикл не пустой и не единичный
             if (cycle.size() != 1) {
+                //Добавляем цикл в строку
                 result.append("<")
                     .append(cycle.stream().map(symbols::get).collect(Collectors.joining("`")))
                     .append(">");
             }
         }
 
+        //Возвращаем строку цикла
         return result.toString();
     }
 
+    //Получение таблицы преобразований
     private Map<Integer, Integer> getTransitions(String value) {
+        //Массив циклов преобразований
         var cycles = new ArrayList<List<String>>();
+        //Таблица преобразований
         var result = new HashMap<Integer, Integer>();
 
+        //Цикл пока не закончатся элементы в основной строке
         while (StringUtils.isNotBlank(value)) {
+            //Массив элементов цикла
             var cycle = new ArrayList<String>();
+            //Индекс начала цикла
             var startCycle = value.indexOf("<");
+            //Индекс конца цикла
             var endCycle = value.indexOf(">");
 
+            //Строка одного цикла преобразований
             var cycleString = value.substring(startCycle + 1, endCycle);
+            //Оставшаяся основная строка
             value = value.substring(endCycle + 1);
 
+            //Цикл пока не закончатся элементы в одном цикле преобразований
             while (StringUtils.isNotBlank(cycleString)) {
+                //Индекс разделителя
                 var delimiterIndex = cycleString.indexOf("`");
+                //Если есть разделитель
                 if (delimiterIndex != -1) {
+                    //Запоминаем элемент цикла
                     var character = cycleString.substring(0, delimiterIndex);
+                    //Удаляем элемент цикла из строки
                     cycleString = cycleString.substring(delimiterIndex + 1);
 
+                    //Добавляем элемент цикла в цикл
                     cycle.add(character);
                 } else {
+                    //Добавляем элемент цикла в цикл
                     cycle.add(cycleString);
                     break;
                 }
             }
+
+            //Добавляем цикл в массив циклов
             cycles.add(cycle);
         }
 
+        //Цикл по всем циклам
         for (var cycle : cycles) {
+            //Цикл по всем элементам цикла
             for (var i = 0; i < cycle.size(); i++) {
+                //Получаем следующий элемент цикла
                 var after = cycle.get(i);
+                //Получаем текущий элемент цикла
                 var before = cycle.get(i - 1 < 0 ? cycle.size() - 1 : i - 1);
+                //Заполняем таблицу преобразований
                 result.put(symbols.indexOf(before), symbols.indexOf(after));
             }
         }
 
+        //Цикл по всем символам
         for (var symbol : symbols) {
+            //Если нет преобразования для данного символа, то добавляем его
             result.putIfAbsent(symbols.indexOf(symbol), symbols.indexOf(symbol));
         }
 
+        //Возвращаем таблицу преобразований
         return result;
     }
 
+    //Метод возведения изотопии в степень
     private Map<Integer, Integer> powTransitions(Map<Integer, Integer> oldTransitions, int pow) {
+        //Новая изотопия
         var result = new HashMap<>(oldTransitions);
 
+        //Цикл по значению степени
         for (var i = 1; i < pow; i++) {
+            //Цикл по всем символам
             for (var symbol : symbols) {
+                //В качестве ключа записываем символ, а в качестве значения значение прошлой изотопии, которое прошло преобразование через изотопию в первоначальной степени
                 result.put(symbols.indexOf(symbol), oldTransitions.get(result.get(symbols.indexOf(symbol))));
             }
         }
 
+        //Возвращаем новую изотопию
         return result;
     }
 
+    //Метод обратного преобразования
     private Map<Integer, Integer> reverseTransitions(Map<Integer, Integer> oldTransitions) {
+        //Новая изотопия
         var result = new HashMap<Integer, Integer>();
 
+        //Цикл по всем символам
         for (var symbol : symbols) {
+            //В качестве значения записываем символ, а в качестве ключа значение прошлой изотопии
             result.put(oldTransitions.get(symbols.indexOf(symbol)), symbols.indexOf(symbol));
         }
 
+        //Возвращаем новую изотопию
         return result;
     }
 
