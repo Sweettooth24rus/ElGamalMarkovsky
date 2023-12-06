@@ -32,6 +32,11 @@ public class MarkovskyTextView extends VerticalLayout {
     public MarkovskyTextView() {
         presenter = new MarkovskyTextPresenter(this);
 
+        randomizedIsotophyTextField.setWidthFull();
+        powedIsotophyTextField.setWidthFull();
+        encryptedMessageTextField.setWidthFull();
+        decryptedMessageTextField.setWidthFull();
+
         add(
             createRandomIsotophySection(),
             createComputeIsotophySection(),
@@ -59,6 +64,7 @@ public class MarkovskyTextView extends VerticalLayout {
         var header = new H1("Вычисление изотопии в степени");
 
         var isotophyTextField = new TextField("Изотопия");
+        isotophyTextField.setWidthFull();
         var isotophyPowTextField = new TextField("Степень");
 
         var computeButton = new Button(
@@ -74,7 +80,7 @@ public class MarkovskyTextView extends VerticalLayout {
     private Component createRandomIsotophySection() {
         var container = new VerticalLayout();
 
-        var header = new H1("Генерация случайой изотопии");
+        var header = new H1("Генерация случайной изотопии");
 
         var generateButton = new Button(
             "Вычислить",
@@ -92,6 +98,7 @@ public class MarkovskyTextView extends VerticalLayout {
         var header = new H1("Шифрование");
 
         var messageTextField = new TextField("Сообщение");
+        messageTextField.setWidthFull();
 
         var isotophyContainer = new HorizontalLayout();
 
@@ -184,6 +191,7 @@ public class MarkovskyTextView extends VerticalLayout {
         var header = new H1("Расшифрование");
 
         var messageTextField = new TextField("Зашифрованное сообщение");
+        messageTextField.setWidthFull();
 
         var secretContainer = new HorizontalLayout();
 
