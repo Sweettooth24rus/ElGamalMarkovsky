@@ -2,10 +2,14 @@ package com.kkoz.el_gamal_test.text_optimal_isotophy;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+@Service
 public class MarkovskyTextOptimalIsotophyPresenter {
     private static final List<String> symbols = List.of(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
@@ -188,20 +192,36 @@ public class MarkovskyTextOptimalIsotophyPresenter {
 
     //Метод возведения изотопии в степень
     private Map<Integer, Integer> powTransitions(Map<Integer, Integer> oldTransitions, long pow) {
+        var symbolsCount = symbols.size();
         //Новая изотопия
-        var result = new HashMap<>(oldTransitions);
+        var resultMap = new HashMap<>(oldTransitions);
+
+        var oldIsotophyValues = symbols.stream().map(symbols::indexOf)
+            .map(oldTransitions::get)
+            .toArray();
+
+        var result = new int[symbolsCount];
+        for (var i = 0; i < symbolsCount; i++) {
+            result[i] = (int) oldIsotophyValues[i];
+        }
 
         //Цикл по значению степени
         for (var i = 1L; i < pow; i++) {
+            var newResult = new int[symbolsCount];
             //Цикл по всем символам
-            for (var index = 0; index < 146; index++) {
+            for (var index = 0; index < symbolsCount; index++) {
                 //В качестве ключа записываем символ, а в качестве значения значение прошлой изотопии, которое прошло преобразование через изотопию в первоначальной степени
-                result.put(index, oldTransitions.get(result.get(index)));
+                newResult[index] = (int) oldIsotophyValues[result[index]];
             }
+            result = newResult;
+        }
+
+        for (var i = 0; i < symbolsCount; i++) {
+            resultMap.put(i, result[i]);
         }
 
         //Возвращаем новую изотопию
-        return result;
+        return resultMap;
     }
 
     //Метод обратного преобразования
@@ -358,8 +378,17 @@ public class MarkovskyTextOptimalIsotophyPresenter {
     public void powIsotophy(String isotophyValue, String powValue) {
         var pow = Long.parseLong(powValue);
 
-        var transitions = powTransitions(getTransitions(isotophyValue), pow);
-        view.getPowedIsotophyTextField().setValue(getCycle(transitions));
+        try {
+            CompletableFuture.runAsync(() -> {
+                var transitions = powTransitions(getTransitions(isotophyValue), pow);
+                System.out.println(getCycle(transitions));
+            }).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+//        view.getPowedIsotophyTextField().setValue(getCycle(transitions));
     }
 
     public void randomizeIsotophy() {

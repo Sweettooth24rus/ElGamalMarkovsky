@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import lombok.Getter;
 
+@org.springframework.stereotype.Component
 @Route("text-optimal-isotophy")
 public class MarkovskyTextOptimalIsotophyView extends VerticalLayout {
     private final MarkovskyTextOptimalIsotophyPresenter presenter;
