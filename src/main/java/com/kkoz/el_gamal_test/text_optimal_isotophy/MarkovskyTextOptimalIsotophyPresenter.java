@@ -5,8 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +22,7 @@ public class MarkovskyTextOptimalIsotophyPresenter {
         " ", ",", ".", ":", ";", "+", "-", "*", "/", "%", "?", "!", "(", ")", "[", "]", "{", "}"
     );
     private static final List<Integer> isotophyCycleSizes = List.of(
-        2, 3, 5, 7, 11, 13, 17, 19, 31, 37
+        5, 6, 7, 11, 13, 17, 19, 31, 37
     );
     @Getter
     private static final int quasigroupMatrixSize = symbols.size();
@@ -377,18 +375,8 @@ public class MarkovskyTextOptimalIsotophyPresenter {
 
     public void powIsotophy(String isotophyValue, String powValue) {
         var pow = Long.parseLong(powValue);
-
-        try {
-            CompletableFuture.runAsync(() -> {
-                var transitions = powTransitions(getTransitions(isotophyValue), pow);
-                System.out.println(getCycle(transitions));
-            }).get();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-//        view.getPowedIsotophyTextField().setValue(getCycle(transitions));
+        var transitions = powTransitions(getTransitions(isotophyValue), pow);
+        view.getPowedIsotophyTextField().setValue(getCycle(transitions));
     }
 
     public void randomizeIsotophy() {
@@ -410,6 +398,7 @@ public class MarkovskyTextOptimalIsotophyPresenter {
                 .append(String.join("`", cycle))
                 .append(">");
         }
-        view.getRandomizedIsotophyTextField().setValue(result.toString());
+
+        view.getRandomizedIsotophyTextField().setValue(getCycle(getTransitions(result.toString())));
     }
 }

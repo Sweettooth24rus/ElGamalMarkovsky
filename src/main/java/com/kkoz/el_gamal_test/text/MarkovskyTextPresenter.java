@@ -62,6 +62,18 @@ public class MarkovskyTextPresenter {
                 quasigroupMatrix[i][j] = symbols.indexOf(possibleSymbols.get((j + offset[i]) % quasigroupMatrixSize));
             }
         }
+
+        var stringQuasigroupMatrix = new ArrayList<List<String>>(quasigroupMatrixSize);
+
+        for (var row : quasigroupMatrix) {
+            var stringRow = new ArrayList<String>(quasigroupMatrixSize);
+            for (var cell : row) {
+                stringRow.add(symbols.get(cell));
+            }
+            stringQuasigroupMatrix.add(stringRow);
+        }
+
+//        view.refreshQuasigroupMatrix(stringQuasigroupMatrix);
     }
 
     private boolean contains(int[] array, int number) {

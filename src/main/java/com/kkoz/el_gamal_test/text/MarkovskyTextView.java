@@ -11,9 +11,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Route("text")
 public class MarkovskyTextView extends VerticalLayout {
     private final MarkovskyTextPresenter presenter;
+    private final VerticalLayout quasigroupMatrixContainer = new VerticalLayout();
     @Getter
     private final TextField encryptedMessageTextField = new TextField("Зашифрованное сообщение");
     @Getter
@@ -28,6 +32,8 @@ public class MarkovskyTextView extends VerticalLayout {
     private final TextField powedIsotophyTextField = new TextField("Результат");
     @Getter
     private final TextField randomizedIsotophyTextField = new TextField("Результат");
+
+    private List<List<TextField>> quasigroupMatrix;
 
     public MarkovskyTextView() {
         presenter = new MarkovskyTextPresenter(this);
@@ -53,7 +59,7 @@ public class MarkovskyTextView extends VerticalLayout {
 
         var randomButton = new Button("Заполнить случайно", e -> presenter.randomUpdateQuasigroup());
 
-        container.add(header, randomButton);
+        container.add(header, quasigroupMatrixContainer, randomButton);
 
         return container;
     }
@@ -245,5 +251,31 @@ public class MarkovskyTextView extends VerticalLayout {
         );
 
         return container;
+    }
+
+    public void refreshQuasigroupMatrix(List<List<String>> quasigroupMatrixValues) {
+        setQuasigroupMatrix(MarkovskyTextPresenter.getQuasigroupMatrixSize(), quasigroupMatrixValues);
+        quasigroupMatrixContainer.removeAll();
+        for (var quasigroupRow : quasigroupMatrix) {
+            var quasigroupRowContainer = new HorizontalLayout();
+            for (var quasigroupCell : quasigroupRow) {
+                quasigroupRowContainer.add(quasigroupCell);
+            }
+            quasigroupMatrixContainer.add(quasigroupRowContainer);
+        }
+    }
+
+    private void setQuasigroupMatrix(int size, List<List<String>> quasigroupMatrixValues) {
+        quasigroupMatrix = new ArrayList<>(size);
+        for (var stringRow : quasigroupMatrixValues) {
+            var quasigroupRow = new ArrayList<TextField>(size);
+            for (var stringCell : stringRow) {
+                var quasigroupCell = new TextField();
+                quasigroupCell.setValue(stringCell);
+                quasigroupCell.setWidth("30px");
+                quasigroupRow.add(quasigroupCell);
+            }
+            quasigroupMatrix.add(quasigroupRow);
+        }
     }
 }
