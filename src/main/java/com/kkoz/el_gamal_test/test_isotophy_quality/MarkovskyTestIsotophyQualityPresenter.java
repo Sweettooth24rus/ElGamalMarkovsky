@@ -1,4 +1,4 @@
-package com.kkoz.el_gamal_test.test_isotophy_quality.test_quasigroup_quality;
+package com.kkoz.el_gamal_test.test_isotophy_quality;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;

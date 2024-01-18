@@ -12,7 +12,8 @@ public class MarkovskyBenchmarkPresenter {
     private final int[] benchmarkSizes = new int[]{
         10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
         200, 300, 400, 500, 600, 700, 800, 900, 1000,
-        2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000
+        2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+        20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000
     };
     private final int secretAlpha = 5;
     private final int secretBeta = 5;
@@ -20,7 +21,7 @@ public class MarkovskyBenchmarkPresenter {
     private final int randomAlpha = 4;
     private final int randomBeta = 6;
     private final int randomGamma = 5;
-    private final String message = "1234567452467565352987246786673642143544653542443463243437654421432475653424";
+    private final String defaultMessage = "1234567452467565352987246786673642143544653542443463243437654421432475653424";
 
     @Getter
     private int quasigroupMatrixSize;
@@ -55,8 +56,8 @@ public class MarkovskyBenchmarkPresenter {
             var start = System.currentTimeMillis();
             encrypt();
             var end = System.currentTimeMillis() - start;
-            view.getBenchmarkEncryptResultCountTextField().setValue(view.getBenchmarkEncryptResultCountTextField().getValue() + ", " + benchmarkSize);
-            view.getBenchmarkEncryptResultTimeTextField().setValue(view.getBenchmarkEncryptResultTimeTextField().getValue() + ", " + end);
+            view.getBenchmarkResultCountTextField().setValue(view.getBenchmarkResultCountTextField().getValue() + ", " + benchmarkSize);
+            view.getBenchmarkResultTimeTextField().setValue(view.getBenchmarkResultTimeTextField().getValue() + ", " + end);
         }
     }
 
@@ -76,8 +77,39 @@ public class MarkovskyBenchmarkPresenter {
             var start = System.currentTimeMillis();
             decrypt();
             var end = System.currentTimeMillis() - start;
-            view.getBenchmarkDecryptResultCountTextField().setValue(view.getBenchmarkDecryptResultCountTextField().getValue() + ", " + benchmarkSize);
-            view.getBenchmarkDecryptResultTimeTextField().setValue(view.getBenchmarkDecryptResultTimeTextField().getValue() + ", " + end);
+            view.getBenchmarkResultCountTextField().setValue(view.getBenchmarkResultCountTextField().getValue() + ", " + benchmarkSize);
+            view.getBenchmarkResultTimeTextField().setValue(view.getBenchmarkResultTimeTextField().getValue() + ", " + end);
+        }
+    }
+
+    public void benchmarkTextLength() {
+        for (var benchmarkSize : benchmarkSizes) {
+            setQuasigroupMatrixSize(9);
+            randomUpdateQuasigroup();
+
+            alphaTransitions = randomizeIsotophy();
+            betaTransitions = randomizeIsotophy();
+            gammaTransitions = randomizeIsotophy();
+
+            publicAlphaTransitions = powTransitions(alphaTransitions, secretAlpha);
+            publicBetaTransitions = powTransitions(betaTransitions, secretBeta);
+            publicGammaTransitions = powTransitions(gammaTransitions, secretGamma);
+
+            randomAlphaTransitions = powTransitions(alphaTransitions, randomAlpha);
+            randomBetaTransitions = powTransitions(betaTransitions, randomBeta);
+            randomGammaTransitions = powTransitions(gammaTransitions, randomGamma);
+
+            var message = new StringBuilder();
+            for (var i = 0; i < benchmarkSize * 100; i++) {
+                message.append((int) (Math.random() * 9) + 1);
+            }
+
+            var start = System.currentTimeMillis();
+            encrypt(message.toString());
+            decrypt(message.toString());
+            var end = System.currentTimeMillis() - start;
+            view.getBenchmarkResultCountTextField().setValue(view.getBenchmarkResultCountTextField().getValue() + ", " + benchmarkSize);
+            view.getBenchmarkResultTimeTextField().setValue(view.getBenchmarkResultTimeTextField().getValue() + ", " + end);
         }
     }
 
@@ -148,11 +180,11 @@ public class MarkovskyBenchmarkPresenter {
     }
 
     public void encrypt() {
-        var leader = 1;
+        encrypt(defaultMessage);
+    }
 
-        var randomAlphaTransitions = powTransitions(alphaTransitions, randomAlpha);
-        var randomBetaTransitions = powTransitions(betaTransitions, randomBeta);
-        var randomGammaTransitions = powTransitions(gammaTransitions, randomGamma);
+    public void encrypt(String message) {
+        var leader = 1;
 
         var resultAlphaTransitions = powTransitions(publicAlphaTransitions, randomAlpha);
         int[][] alphaMatrix = new int[quasigroupMatrixSize][quasigroupMatrixSize];
@@ -193,6 +225,10 @@ public class MarkovskyBenchmarkPresenter {
     }
 
     public void decrypt() {
+        decrypt(defaultMessage);
+    }
+
+    public void decrypt(String message) {
         var leader = 1;
 
         var resultAlphaTransitions = powTransitions(randomAlphaTransitions, secretAlpha);

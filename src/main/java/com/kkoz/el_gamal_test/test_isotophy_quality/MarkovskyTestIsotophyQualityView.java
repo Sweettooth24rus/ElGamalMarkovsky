@@ -1,4 +1,4 @@
-package com.kkoz.el_gamal_test.test_isotophy_quality.test_quasigroup_quality;
+package com.kkoz.el_gamal_test.test_isotophy_quality;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;

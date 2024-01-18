@@ -12,23 +12,32 @@ import lombok.Getter;
 public class MarkovskyBenchmarkView extends VerticalLayout {
     private final MarkovskyBenchmarkPresenter presenter;
     @Getter
-    private final TextField benchmarkEncryptResultCountTextField = new TextField("Количество элементов");
+    private final TextField benchmarkResultCountTextField = new TextField("Количество элементов");
     @Getter
-    private final TextField benchmarkEncryptResultTimeTextField = new TextField("Время");
-    @Getter
-    private final TextField benchmarkDecryptResultCountTextField = new TextField("Количество элементов");
-    @Getter
-    private final TextField benchmarkDecryptResultTimeTextField = new TextField("Время");
+    private final TextField benchmarkResultTimeTextField = new TextField("Время");
 
     public MarkovskyBenchmarkView() {
         presenter = new MarkovskyBenchmarkPresenter(this);
 
-        benchmarkEncryptResultCountTextField.setWidthFull();
-        benchmarkEncryptResultTimeTextField.setWidthFull();
-        benchmarkDecryptResultCountTextField.setWidthFull();
-        benchmarkDecryptResultTimeTextField.setWidthFull();
+        benchmarkResultCountTextField.setWidthFull();
+        benchmarkResultTimeTextField.setWidthFull();
 
-        add(createBenchmarkEncryptSection(), createBenchmarkDecryptSection());
+        add(
+            createBenchmarkResultSection(),
+            createBenchmarkEncryptSection(),
+            createBenchmarkDecryptSection(),
+            createBenchmarkMessageLengthSection()
+        );
+    }
+
+    private Component createBenchmarkResultSection() {
+        var container = new VerticalLayout();
+
+        var header = new H1("Результаты");
+
+        container.add(header, benchmarkResultCountTextField, benchmarkResultTimeTextField);
+
+        return container;
     }
 
     private Component createBenchmarkEncryptSection() {
@@ -38,7 +47,7 @@ public class MarkovskyBenchmarkView extends VerticalLayout {
 
         var button = new Button("Запустить", e -> presenter.benchmarkEncrypt());
 
-        container.add(header, button, benchmarkEncryptResultCountTextField, benchmarkEncryptResultTimeTextField);
+        container.add(header, button);
 
         return container;
     }
@@ -50,7 +59,19 @@ public class MarkovskyBenchmarkView extends VerticalLayout {
 
         var button = new Button("Запустить", e -> presenter.benchmarkDecrypt());
 
-        container.add(header, button, benchmarkDecryptResultCountTextField, benchmarkDecryptResultTimeTextField);
+        container.add(header, button);
+
+        return container;
+    }
+
+    private Component createBenchmarkMessageLengthSection() {
+        var container = new VerticalLayout();
+
+        var header = new H1("Тестирование скорости работы для текста разной длины");
+
+        var button = new Button("Запустить", e -> presenter.benchmarkTextLength());
+
+        container.add(header, button);
 
         return container;
     }
